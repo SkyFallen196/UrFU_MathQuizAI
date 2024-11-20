@@ -1,0 +1,15 @@
+chromadb
+langchain
+langchain_community
+jupyter
+pypdf
+python-dotenv
+nbformat
+nbconvert
+unstructured
+markdown
+unstructured_inference
+pillow_heif
+sentence-transformers
+langchain_ollama
+nltk==3.9.1

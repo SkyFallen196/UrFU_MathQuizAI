@@ -1,5 +1,5 @@
 import os
-import gradio as gr
+import chromadb
 
 from dotenv import load_dotenv
 from langchain.chains.combine_documents import create_stuff_documents_chain
@@ -34,24 +34,30 @@ text_splitter = CharacterTextSplitter(
     is_separator_regex=False,
 )
 
-all_pages = []
+docs = []
 for md_file in md_files:
     md_path = os.path.join(md_directory, md_file)
     loader = UnstructuredMarkdownLoader(md_path)
     pages = loader.load_and_split(text_splitter)
-    all_pages.extend(pages)
+    docs.extend(pages)
 
     print(f"Content of {md_file}:")
     for page in pages:
         print(page)
 
-    all_pages.extend(pages)
+    docs.extend(pages)
     print(f"Loaded {len(pages)} pages from {md_file}")
 
-print(f"Total number of pages loaded: {len(all_pages)}")
+print(f"Total number of pages loaded: {len(docs)}")
 
-embedding_model_nomic = OllamaEmbeddings(model="nomic-embed-text:latest")
-db = Chroma.from_documents(all_pages, embedding_model_nomic)
+embeddings_model = OllamaEmbeddings(model="nomic-embed-text:latest")
+
+client = chromadb.HttpClient(host="http://localhost:8000")
+collection = client.get_or_create_collection(name="math_vector")
+
+db = Chroma.from_documents(docs, embedding=embeddings_model, client=client)
+db.add_documents(docs, collection=collection)
+
 retriever = db.as_retriever(search_kwargs={"k": 3})
 
 template = """
@@ -80,13 +86,3 @@ def get_response(query: str) -> str:
     """
     response = retrieval_chain.invoke({"input": query})
     return response["answer"]
-
-iface = gr.Interface(
-  fn=get_response,
-  inputs=gr.Textbox(lines=2, placeholder="Введите свой промпт..."),
-  outputs=gr.Markdown(),
-  title="llama",
-  description="Напишите промпт на основе заданного контекста.",
-)
-
-iface.launch()

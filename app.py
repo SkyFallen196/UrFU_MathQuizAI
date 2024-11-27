@@ -1,5 +1,6 @@
 import streamlit as st
 from dotenv import load_dotenv
+import os
 
 from RAG import get_response
 
@@ -38,6 +39,13 @@ if st.session_state.mode is None:
         if st.button("Свой запрос", key="custom_request_button", use_container_width=True):
             st.session_state.mode = "custom_request"
             st.rerun()
+
+    uploaded_files = st.file_uploader("Загрузите ваши документы (формат .md)", type=["md"], accept_multiple_files=True)
+    if uploaded_files:
+        for uploaded_file in uploaded_files:
+            with open(os.path.join("data", uploaded_file.name), "wb") as f:
+                f.write(uploaded_file.getbuffer())
+            st.success(f"Файл {uploaded_file.name} успешно загружен!")
 
 elif st.session_state.mode == "matrix_determinant_2x2":
     st.subheader("Вычисление определителя матрицы 2x2")

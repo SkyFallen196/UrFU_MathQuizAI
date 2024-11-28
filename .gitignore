@@ -171,3 +171,9 @@ poetry.toml
 
 # LSP config files
 pyrightconfig.json
+
+# Database files
+*.db
+
+# Markdown files
+*.md

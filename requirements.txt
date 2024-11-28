@@ -14,3 +14,4 @@ sentence-transformers
 langchain_ollama
 nltk==3.9.1
 streamlit
+pandas

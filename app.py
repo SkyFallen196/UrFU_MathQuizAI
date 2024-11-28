@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 
 from modes.calc_matrix_determinant import handle_matrix_determinant_2x2_mode
 from modes.custom_request import handle_custom_request_mode
+from modes.view_saved_answers import handle_saved_answers_mode
 from utils.file_handler import handle_file_upload
 from utils.page_configurator import configure_page
 from utils.session_manager import initialize_session_state
@@ -10,7 +11,7 @@ from utils.session_manager import initialize_session_state
 
 def show_main_menu():
     st.subheader("Пожалуйста, выберите действие ниже")
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
 
     with col1:
         if st.button("Найти определитель матрицы 2x2",
@@ -21,6 +22,10 @@ def show_main_menu():
     with col2:
         if st.button("Свой запрос", key="custom_request_button", use_container_width=True):
             st.session_state.mode = "custom_request"
+            st.rerun()
+    with col3:
+        if st.button("Сохранённые ответы", key="saved_answers_button", use_container_width=True):
+            st.session_state.mode = "saved_answers"
             st.rerun()
 
 
@@ -37,6 +42,8 @@ def main():
         handle_matrix_determinant_2x2_mode()
     elif st.session_state.mode == "custom_request":
         handle_custom_request_mode()
+    elif st.session_state.mode == "saved_answers":
+        handle_saved_answers_mode()
 
 
 if __name__ == "__main__":

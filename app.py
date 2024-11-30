@@ -1,10 +1,8 @@
 import streamlit as st
 from dotenv import load_dotenv
 
-from modes.calc_matrix_determinant import handle_matrix_determinant_2x2_mode
-from modes.custom_request import handle_custom_request_mode
-from modes.view_saved_answers import handle_saved_answers_mode
 from utils.file_handler import handle_file_upload
+from utils.modes_manager import handle_mode
 from utils.page_configurator import configure_page
 from utils.session_manager import initialize_session_state
 
@@ -38,12 +36,8 @@ def main():
     if st.session_state.mode is None:
         show_main_menu()
         handle_file_upload()
-    elif st.session_state.mode == "matrix_determinant_2x2":
-        handle_matrix_determinant_2x2_mode()
-    elif st.session_state.mode == "custom_request":
-        handle_custom_request_mode()
-    elif st.session_state.mode == "saved_answers":
-        handle_saved_answers_mode()
+    else:
+        handle_mode()
 
 
 if __name__ == "__main__":

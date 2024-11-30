@@ -73,7 +73,7 @@ combine_docs_chain = create_stuff_documents_chain(llm, prompt)
 retrieval_chain = create_retrieval_chain(retriever, combine_docs_chain)
 
 
-def get_response(query: str) -> str:
+def get_response(query):
     response = retrieval_chain.invoke({"input": query})
 
     return response["answer"]

@@ -1,7 +1,8 @@
 import streamlit as st
 
 from utils.RAG import get_response
-from utils.database import initialize_db, save_response_to_db
+from utils.button_utils import handle_back_to_main_menu_button, handle_save_to_db_button
+from utils.database import initialize_db
 
 initialize_db()
 
@@ -12,7 +13,7 @@ def handle_custom_request_mode():
     st.session_state.user_input = st.text_area(
         "Введите свой промпт ниже",
         value=st.session_state.user_input,
-        height=300
+        height=300,
     )
 
     if st.session_state.is_loading:
@@ -27,6 +28,8 @@ def handle_custom_request_mode():
             st.rerun()
 
     if st.session_state.is_loading and not st.session_state.show_answer:
+        st.session_state.is_button_clicked = False
+
         with st.spinner("Генерация ответа..."):
             try:
                 answer = get_response(st.session_state.user_input)
@@ -41,26 +44,6 @@ def handle_custom_request_mode():
     if st.session_state.show_answer:
         st.markdown("### **Ответ:**")
         st.markdown(f"{st.session_state.generated_answer}")
-        st.markdown("Сохранить ответ в базу данных?")
-        col1, col2 = st.columns(2)
+        handle_save_to_db_button(st.session_state.user_input, st.session_state.generated_answer)
 
-        with col1:
-            save_to_db = st.button("Да", key="save_yes_button", use_container_width=True)
-        with col2:
-            do_not_save = st.button("Нет", key="save_no_button", use_container_width=True)
-
-        if save_to_db:
-            try:
-                save_response_to_db(st.session_state.user_input, st.session_state.generated_answer)
-                st.success("Ответ был успешно сохранён в базу данных.")
-            except Exception as error:
-                st.error(f"Ошибка сохранения ответа в базу данных: {error}")
-        elif do_not_save:
-            st.info("Ответ не был сохранён в базу данных – выбран ответ «Нет».")
-
-    if st.button("Вернуться к выбору режима", key="back_button_request"):
-        st.session_state.mode = None
-        st.session_state.show_answer = False
-        st.session_state.user_input = ""
-        st.session_state.generated_answer = ""
-        st.rerun()
+    handle_back_to_main_menu_button()

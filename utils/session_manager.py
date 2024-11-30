@@ -12,3 +12,5 @@ def initialize_session_state():
         st.session_state.generated_answer = ""
     if "is_loading" not in st.session_state:
         st.session_state.is_loading = False
+    if "is_button_clicked" not in st.session_state:
+        st.session_state.is_button_clicked = False

@@ -7,24 +7,21 @@ from utils.page_configurator import configure_page
 from utils.session_manager import initialize_session_state
 
 
+def create_menu_button(label: str, mode: str, col) -> None:
+    """Вспомогательная функция для создания кнопки меню с единым стилем."""
+    if col.button(label, key=f"{mode}_button", use_container_width=True):
+        st.session_state.mode = mode
+        st.rerun()
+
+
 def show_main_menu():
     st.subheader("Пожалуйста, выберите действие ниже")
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
 
-    with col1:
-        if st.button("Найти определитель матрицы 2x2",
-                     key="matrix_determinant_2x2_button",
-                     use_container_width=True):
-            st.session_state.mode = "matrix_determinant_2x2"
-            st.rerun()
-    with col2:
-        if st.button("Свой запрос", key="custom_request_button", use_container_width=True):
-            st.session_state.mode = "custom_request"
-            st.rerun()
-    with col3:
-        if st.button("Сохранённые ответы", key="saved_answers_button", use_container_width=True):
-            st.session_state.mode = "saved_answers"
-            st.rerun()
+    create_menu_button("Найти определитель матрицы 2x2", "matrix_determinant_2x2", col1)
+    create_menu_button("Найти определитель матрицы 3x3", "matrix_determinant_3x3", col2)
+    create_menu_button("Свой запрос", "custom_request", col3)
+    create_menu_button("Сохранённые ответы", "saved_answers", col4)
 
 
 def main():

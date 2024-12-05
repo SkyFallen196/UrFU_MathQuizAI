@@ -8,7 +8,6 @@ from utils.session_manager import initialize_session_state
 
 
 def create_menu_button(label: str, mode: str, col) -> None:
-    """Вспомогательная функция для создания кнопки меню с единым стилем."""
     if col.button(label, key=f"{mode}_button", use_container_width=True):
         st.session_state.mode = mode
         st.rerun()

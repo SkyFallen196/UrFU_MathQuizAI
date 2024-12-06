@@ -21,7 +21,7 @@ def handle_matrix_determinant_2x2_mode():
 2. Дана матрица A = [[3, 1], [-6, 8]]. Чему равен определитель данной матрицы?
 3. Дана матрица A = [[0, 5], [-9, 2]]. Чему равен определитель данной матрицы?
 """
-    handle_template_mode(template, "Вычисление определителя матрицы 2x2")
+    handle_template_mode(template, "Вычисление определителя матрицы 2x2", calculate_determinant=True)
 
 
 def handle_matrix_determinant_3x3_mode():
@@ -44,4 +44,4 @@ def handle_matrix_determinant_3x3_mode():
 2. Дана матрица A = [[0, 1, -4], [-3, 2, 5], [6, -1, 3]]. Чему равен определитель данной матрицы?
 3. Дана матрица A = [[1, 0, 2], [-2, 3, -1], [4, -3, 1]]. Чему равен определитель данной матрицы?
 """
-    handle_template_mode(template, "Вычисление определителя матрицы 3x3")
+    handle_template_mode(template, "Вычисление определителя матрицы 3x3", calculate_determinant=True)

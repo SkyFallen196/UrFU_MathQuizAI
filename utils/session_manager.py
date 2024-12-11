@@ -1,5 +1,6 @@
 import streamlit as st
 
+
 def initialize_session_state():
     session_defaults = {
         "mode": None,
@@ -8,6 +9,7 @@ def initialize_session_state():
         "generated_answer": "",
         "is_loading": False,
         "is_button_clicked": False,
+        "operation": None,
     }
     
     for key, default in session_defaults.items():

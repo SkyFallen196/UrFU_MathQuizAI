@@ -18,13 +18,16 @@ def show_main_menu():
     col1, col2 = st.columns(2)
     col3, col4 = st.columns(2)
     col5, col6 = st.columns(2)
+    col7, col8 = st.columns(2)
 
-    create_menu_button("Найти определитель матрицы 2x2", "matrix_determinant_2x2", col1)
-    create_menu_button("Найти определитель матрицы 3x3", "matrix_determinant_3x3", col2)
-    create_menu_button("Найти произведение двух матриц 2x2", "matrix_2_multip_2x2", col3)
-    create_menu_button("Найти произведение двух матриц 3x3", "matrix_2_multip_3x3", col4)
-    create_menu_button("Свой запрос", "custom_request", col5)
-    create_menu_button("Сохранённые ответы", "saved_answers", col6)
+    create_menu_button("Свой запрос", "custom_request", col1)
+    create_menu_button("Сохранённые ответы", "saved_answers", col2)
+    create_menu_button("Найти определитель матрицы 2x2", "matrix_determinant_2x2", col3)
+    create_menu_button("Найти определитель матрицы 3x3", "matrix_determinant_3x3", col4)
+    create_menu_button("Найти произведение двух матриц 2x2", "matrix_2_multip_2x2", col5)
+    create_menu_button("Найти произведение двух матриц 3x3", "matrix_2_multip_3x3", col6)
+    create_menu_button("Найти след матрицы 4x4", "matrix_trace", col7)
+    create_menu_button("Найти ранг матрицы 3x3", "matrix_rank", col8)
 
 
 def main():

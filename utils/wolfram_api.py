@@ -49,16 +49,21 @@ def build_wolfram_query(operation, matrix_str):
 
 
 def build_wolfram_query_for_operation(operation, *matrices):
-    if operation == "determinant":
-        return f"determinant {matrices[0]}"
-    elif operation == "multiplication":
-        return f"{matrices[0]} * {matrices[1]}"
-    else:
-        raise ValueError(f"Неизвестная операция: {operation}")
+    match operation:
+        case "determinant":
+            return f"determinant {matrices[0]}"
+        case "multiplication":
+            return f"{matrices[0]} * {matrices[1]}"
+        case "trace":
+            return f"trace {matrices[0]}"
+        case "rank":
+            return f"rank {matrices[0]}"
+        case _:
+            raise ValueError(f"Неизвестная операция: {operation}")
 
 
 def get_matrix_operation_result(text, operation):
-    if operation in ("determinant"):  # С заделом на будущее.
+    if operation in ("determinant", "trace", "rank"):
         matrix_str = extract_matrix(text, "A")
 
         if not matrix_str:

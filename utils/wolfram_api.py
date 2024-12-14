@@ -63,22 +63,40 @@ def build_wolfram_query_for_operation(operation, *matrices):
 
 
 def get_matrix_operation_result(text, operation):
-    if operation in ("determinant", "trace", "rank"):
-        matrix_str = extract_matrix(text, "A")
+    match operation:
+        case "determinant" | "trace" | "rank":
+            matrix_str = extract_matrix(text, "A")
 
-        if not matrix_str:
+            if not matrix_str:
+                return None
+
+            query = build_wolfram_query_for_operation(operation, matrix_str)
+
+        case "multiplication":
+            A_matrix, B_matrix = extract_two_matrices(text)
+
+            if not (A_matrix and B_matrix):
+                return None
+
+            query = build_wolfram_query_for_operation(operation, A_matrix, B_matrix)
+
+        case "matrix_expression":
+            A_matrix, B_matrix = extract_two_matrices(text)
+
+            if not (A_matrix and B_matrix):
+                return None
+
+            n1_match = re.search(r"(\d+)A", text)
+            n2_match = re.search(r"(\d+)B", text)
+
+            if not (n1_match and n2_match):
+                return None
+
+            n1, n2 = n1_match.group(1), n2_match.group(1)
+            query = f"{n1} * {A_matrix} + {n2} * {B_matrix}"
+
+        case _:
             return None
-
-        query = build_wolfram_query_for_operation(operation, matrix_str)
-    elif operation == "multiplication":
-        A_matrix, B_matrix = extract_two_matrices(text)
-
-        if not (A_matrix and B_matrix):
-            return None
-
-        query = build_wolfram_query_for_operation(operation, A_matrix, B_matrix)
-    else:
-        return None
 
     print("Запрос к Wolfram Alpha:", query)
     result = query_wolfram_alpha(query)

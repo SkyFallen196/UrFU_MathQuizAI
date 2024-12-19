@@ -5,21 +5,18 @@ import requests
 from dotenv import load_dotenv
 
 load_dotenv()
-
 api_key = os.getenv("WOLFRAM_ALPHA_APP_ID")
+BASE_URL = "http://api.wolframalpha.com/v2/query"
 
 
-def query_wolfram_alpha(query):
-    base_url = "http://api.wolframalpha.com/v2/query"
-
+def send_wolfram_query(query):
     params = {
         "input": query,
         "format": "plaintext",
         "output": "JSON",
         "appid": api_key
     }
-
-    response = requests.get(base_url, params=params)
+    response = requests.get(BASE_URL, params=params)
 
     if response.status_code == 200:
         return response.json()
@@ -27,87 +24,112 @@ def query_wolfram_alpha(query):
         raise Exception(f"Error: {response.status_code} - {response.text}")
 
 
-def extract_matrix(text, label):
-    pattern = rf"{label} = (\[\[.*?\]\])"
-    match = re.search(pattern, text)
+def extract_result_from_response(response, title="Result"):
+    try:
+        pods = response.get("queryresult", {}).get("pods", [])
 
-    if match:
-        return match.group(1)
+        for pod in pods:
+            if pod.get("title") == title:
+                return pod.get("subpods", [{}])[0].get("plaintext")
+    except Exception as error:
+        print(f"Ошибка в процессе обработки запроса: {error}")
 
     return None
 
 
-def extract_two_matrices(text):
-    A_matrix = extract_matrix(text, "A")
-    B_matrix = extract_matrix(text, "B")
-
-    return A_matrix, B_matrix
-
-
-def build_wolfram_query(operation, matrix_str):
-    return f"{operation} {matrix_str}"
-
-
-def build_wolfram_query_for_operation(operation, *matrices):
+def build_query(operation, *args):
     match operation:
         case "determinant":
-            return f"determinant {matrices[0]}"
+            return f"determinant {args[0]}"
         case "multiplication":
-            return f"{matrices[0]} * {matrices[1]}"
+            return f"{args[0]} * {args[1]}"
         case "trace":
-            return f"trace {matrices[0]}"
+            return f"trace {args[0]}"
         case "rank":
-            return f"rank {matrices[0]}"
+            return f"rank {args[0]}"
+        case "vector_length":
+            return f"magnitude of ({args[0]}, {args[1]}, {args[2]})"
+        case "matrix_expression":
+            n1, A, n2, B = args
+
+            return f"{n1} * {A} + {n2} * {B}"
         case _:
             raise ValueError(f"Неизвестная операция: {operation}")
 
 
-def get_matrix_operation_result(text, operation):
+def get_single_matrix_query(text, operation):
+    matrix_str = extract_matrix(text, "A")
+
+    if not matrix_str:
+        return None
+
+    return build_query(operation, matrix_str)
+
+
+def get_two_matrices_query(text, operation):
+    A_matrix = extract_matrix(text, "A")
+    B_matrix = extract_matrix(text, "B")
+
+    if not (A_matrix and B_matrix):
+        return None
+
+    return build_query(operation, A_matrix, B_matrix)
+
+
+def get_matrix_expression_query(text):
+    A_matrix = extract_matrix(text, "A")
+    B_matrix = extract_matrix(text, "B")
+
+    if not (A_matrix and B_matrix):
+        return None
+
+    n1_match = re.search(r"(\d+)A", text)
+    n2_match = re.search(r"(\d+)B", text)
+
+    if not (n1_match and n2_match):
+        return None
+
+    n1, n2 = n1_match.group(1), n2_match.group(1)
+
+    return build_query("matrix_expression", n1, A_matrix, n2, B_matrix)
+
+
+def extract_matrix(text, label):
+    pattern = rf"{label} = (\[\[.*?\]\])"
+    match = re.search(pattern, text)
+
+    return match.group(1) if match else None
+
+
+def get_operation_result(text, operation):
+    query = None
+
     match operation:
         case "determinant" | "trace" | "rank":
-            matrix_str = extract_matrix(text, "A")
-
-            if not matrix_str:
-                return None
-
-            query = build_wolfram_query_for_operation(operation, matrix_str)
-
+            query = get_single_matrix_query(text, operation)
         case "multiplication":
-            A_matrix, B_matrix = extract_two_matrices(text)
-
-            if not (A_matrix and B_matrix):
-                return None
-
-            query = build_wolfram_query_for_operation(operation, A_matrix, B_matrix)
-
+            query = get_two_matrices_query(text, operation)
         case "matrix_expression":
-            A_matrix, B_matrix = extract_two_matrices(text)
+            query = get_matrix_expression_query(text)
+        case "vector_length":
+            vector_match = re.search(r"A = \((\d+), (\d+), (\d+)\)", text)
 
-            if not (A_matrix and B_matrix):
-                return None
+            if vector_match:
+                x, y, z = map(int, vector_match.groups())
+                query = build_query("vector_length", x, y, z)
+        case "function_evaluation":
+            function_match = re.search(r"f\(x\) = (.+)\. Найдите", text)
+            point_match = re.search(r"x = ([\d\-\+\.]+)", text)
 
-            n1_match = re.search(r"(\d+)A", text)
-            n2_match = re.search(r"(\d+)B", text)
+            if function_match and point_match:
+                function = function_match.group(1)
+                point = point_match.group(1)
+                query = f"value of {function} at x={point}"
 
-            if not (n1_match and n2_match):
-                return None
-
-            n1, n2 = n1_match.group(1), n2_match.group(1)
-            query = f"{n1} * {A_matrix} + {n2} * {B_matrix}"
-
-        case _:
-            return None
+    if not query:
+        return None
 
     print("Запрос к Wolfram Alpha:", query)
-    result = query_wolfram_alpha(query)
+    response = send_wolfram_query(query)
 
-    try:
-        pods = result.get("queryresult", {}).get("pods", [])
-
-        for pod in pods:
-            if pod.get("title") == "Result":
-                return pod.get("subpods", [{}])[0].get("plaintext")
-    except Exception as e:
-        print(f"Ошибка при обработке результата: {e}")
-
-    return None
+    return extract_result_from_response(response)

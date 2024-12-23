@@ -37,7 +37,7 @@ def display_generated_task():
 def handle_template_mode(template, title, operation=None):
     st.subheader(title)
 
-    if st.button("Составить задание"):
+    if st.button("Составить задание", use_container_width=True):
         st.session_state.is_loading = True
 
         with st.spinner("Генерация задания..."):

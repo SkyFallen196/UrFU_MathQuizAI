@@ -5,7 +5,7 @@ from utils.database import save_response_to_db
 
 
 def handle_back_to_main_menu_button():
-    if st.button("Вернуться в главное меню", key="back_to_menu_button"):
+    if st.button("Вернуться в главное меню", key="back_to_menu_button", use_container_width=True):
         st.session_state.mode = None
         st.session_state.user_input = ""
         st.session_state.show_answer = False

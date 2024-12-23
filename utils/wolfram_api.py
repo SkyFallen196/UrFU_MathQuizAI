@@ -21,7 +21,7 @@ def send_wolfram_query(query):
     if response.status_code == 200:
         return response.json()
     else:
-        raise Exception(f"Error: {response.status_code} - {response.text}")
+        raise Exception(f"Ошибка: {response.status_code} - {response.text}")
 
 
 def extract_result_from_response(response, title="Result"):
@@ -53,6 +53,15 @@ def build_query(operation, *args):
             n1, A, n2, B = args
 
             return f"{n1} * {A} + {n2} * {B}"
+        case "complex_module":
+            a, b = args
+
+            return f"magnitude of {a}+{b}i"
+        case "derivative_evaluation":
+            function, point = args
+            formatted_function = re.sub(r"(\d+)x", r"\1*x", function)
+
+            return f"derivative of ({formatted_function}) at x={point}"
         case _:
             raise ValueError(f"Неизвестная операция: {operation}")
 
@@ -125,6 +134,23 @@ def get_operation_result(text, operation):
                 function = function_match.group(1)
                 point = point_match.group(1)
                 query = f"value of {function} at x={point}"
+        case "complex_module":
+            complex_match = re.search(r"z = ([\-]?\d+) ?(\+|\-) ?(\d+)i", text)
+
+            if complex_match:
+                a = int(complex_match.group(1))
+                sign = complex_match.group(2)
+                b_abs = int(complex_match.group(3))
+                b = b_abs if sign == "+" else -b_abs
+                query = build_query("complex_module", a, b)
+        case "derivative_evaluation":
+            function_match = re.search(r"f\(x\) = (.+)\. Найдите значение её производной", text)
+            point_match = re.search(r"x = ([\d\-\+\.]+)", text)
+
+            if function_match and point_match:
+                function = function_match.group(1)
+                point = point_match.group(1)
+                query = build_query("derivative_evaluation", function, point)
 
     if not query:
         return None

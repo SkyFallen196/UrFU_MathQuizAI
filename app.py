@@ -32,6 +32,7 @@ def show_modes_submenu():
     col5, col6 = st.columns(2)
     col7, col8 = st.columns(2)
     col9, col10 = st.columns(2)
+    col11, col12 = st.columns(2)
 
     create_menu_button("Свой запрос", "custom_request", col1)
     create_menu_button("Найти определитель матрицы 2x2", "matrix_determinant_2x2", col2)
@@ -43,6 +44,8 @@ def show_modes_submenu():
     create_menu_button("Вычислить n1A + n2B", "matrix_expression", col8)
     create_menu_button("Вычислить длину вектора", "vector_length", col9)
     create_menu_button("Вычислить значение функции в точке", "function_evaluation", col10)
+    create_menu_button("Вычислить модуль комплексного числа", "complex_module", col11)
+    create_menu_button("Вычислить производную функции в точке", "derivative_evaluation", col12)
     handle_back_to_main_menu_button()
 
 

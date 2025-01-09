@@ -49,7 +49,7 @@ for md_file in md_files:
 
 print(f"Total number of pages loaded: {len(docs)}")
 embeddings_model = OllamaEmbeddings(model="nomic-embed-text:latest")
-client = chromadb.HttpClient(host="http://localhost:8000")
+client = chromadb.HttpClient(host="http://0.0.0.0:8000")
 collection = client.get_or_create_collection(name="math_vector")
 db = Chroma.from_documents(docs, embedding=embeddings_model, client=client)
 db.add_documents(docs, collection=collection)
